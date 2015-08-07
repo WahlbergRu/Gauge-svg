@@ -28,7 +28,10 @@ var MODULE = (function () {
                 '32',
                 '14'
             ]
-        }
+        },
+        aperture: 210,
+        drawElement: 7,
+
     };
 
     my.circularColorChange = function (data) { // возможность отдельного указания цветных участков
@@ -61,9 +64,10 @@ var MODULE = (function () {
         // Параметры:
         // radius - радиус кольца
         // angle - угол, начиная от пересечения кольца с осью OX
+        // 270 - смещение начала отрисовки кольца в 3 и 4 плоскость
         return {
-            x: cx + radius * Math.cos(Math.PI * angle / 180),
-            y: cy + radius * Math.sin(Math.PI * angle / 180)
+            x: cx + radius * Math.cos(Math.PI * (angle + 270 - my.aperture/2) / 180),
+            y: cy + radius * Math.sin(Math.PI * (angle + 270 - my.aperture/2) / 180)
         };
     };
 
@@ -85,8 +89,16 @@ var MODULE = (function () {
         newpath.setAttributeNS(null, "fill", "none");
         console.log(svg);
         svg.appendChild(newpath);
-
     };
+
+    my.drawParts = function(){
+        var angularPart = this.aperture/this.drawElements;
+
+        for (var i=0; i<this.drawElement; i++){
+            MODULE.drawPartOfCircle(100, 100, 100, i*30, (i+1)*30);
+        }
+
+    }
 
     return my;
 }());
@@ -124,12 +136,5 @@ MODULE.textOnCircular({
     ]}
 );
 
-MODULE.drawPartOfCircle(100, 100, 50, 0, 30);
-MODULE.drawPartOfCircle(100, 100, 50, 30, 60);
-MODULE.drawPartOfCircle(100, 100, 50, 60, 90);
-MODULE.drawPartOfCircle(100, 100, 50, 90, 120);
-MODULE.drawPartOfCircle(100, 100, 50, 120, 150);
-MODULE.drawPartOfCircle(100, 100, 50, 150, 180);
-MODULE.drawPartOfCircle(100, 100, 50, 180, 210);
-
+MODULE.drawParts();
 console.log(MODULE);
