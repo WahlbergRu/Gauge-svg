@@ -4,6 +4,12 @@
     display: block;
 }
 
+#gauge2{
+    width: 800px;
+    margin: 0 auto;
+    display: block;
+}
+
 #circular path{
 
 }
