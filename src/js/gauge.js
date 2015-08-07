@@ -2,18 +2,6 @@ var MODULE = (function () {
 
     var my = {
         circularColor:[
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000',
-            '#000'
         ],
         circularText:{
             'fontFamily':'Arial',
@@ -35,37 +23,12 @@ var MODULE = (function () {
 
     };
 
-    my.circularColorChange = function (data) { // возможность отдельного указания цветных участков
-
-        var circular = document.getElementById("circular").getElementsByTagName('*');
-        this.circularText = data;
-
-        for(var i = 0; i < my.circularColor.length; i++){
-            circular[i].style.stroke = my.circularColor[i];
-        }
-
-    };
-
-    my.textOnCircular = function(data){ // компонент должен уметь отображать любой список значений для меток
-
-        var gaugeText = document.getElementById("gauge-text").getElementsByTagName('*');
-
-        console.log(gaugeText);
-
-        for(var i = 0; i < gaugeText.length; i++){
-            console.log(data.fontFamily);
-            gaugeText[i].attributes['font-family'] = data.fontFamily;
-            gaugeText[i].attributes['font-size'] = data.fontSize;
-            gaugeText[i].textContent = data.elementsName[i];
-        }
-    };
-
     my.getPointOnCircle = function(cx, cy, radius, angle) {
         // Находим точку на кольце
         // Параметры:
         // radius - радиус кольца
         // angle - угол, начиная от пересечения кольца с осью OX
-        // 270 - смещение начала отрисовки кольца в 3 и 4 плоскость
+        // 270 - смещение начала отрисовки кольца в отрицательной плоскости OY
         return {
             x: cx + radius * Math.cos(Math.PI * (angle + 270 - my.aperture/2) / 180),
             y: cy + radius * Math.sin(Math.PI * (angle + 270 - my.aperture/2) / 180)
@@ -74,6 +37,10 @@ var MODULE = (function () {
 
 
     my.drawParts = function(cx,cy,radius){
+        // Отрисовка gauge
+        // Параметры:
+        // cx - начало координат кольца, ось OX
+        // cy - начало координат кольца, ось OY
         var angularPart = this.aperture/this.drawElements;
 
         for (var i=0; i<=this.drawElements; i++){
@@ -94,6 +61,11 @@ var MODULE = (function () {
     };
 
     my.drawArrow = function(cx, cy, radius, arrowAngle, radiusCircle, colorCircle, colorArrow){
+        // Отрисовка стрелки
+        // Параметры:
+        // cx - начало координат кольца, ось OX
+        // cy - начало координат кольца, ось OY
+        // radius - длина стрелки, ось OY
         var svg, startPointOnCircle, endPointOnCircle, newpath, startAngular, angle;
         svg = document.getElementById('gauge2');
         startPointOnCircle = this.getPointOnCircle(cx, cy, radiusCircle, arrowAngle);
@@ -107,43 +79,66 @@ var MODULE = (function () {
 
         startPointOnCircle = this.getPointOnCircle(cx, cy, radius, arrowAngle);
 
-        angle = (arrowAngle  + 180 - my.aperture/2)
 
-        newpath = document.createElementNS('http://www.w3.org/2000/svg',"polygon");
-        newpath.setAttributeNS(null, "points",
-            '400,500 '+
-            (400+radiusCircle/2)+','+(300)+' '+
-            (400-radiusCircle/2)+','+(300)
-        );
-        newpath.setAttributeNS(null, "fill", colorArrow);
-        newpath.setAttributeNS(null, 'transform', "translate(0) rotate(" + angle + " 400 300)");
-        svg.appendChild(newpath);
-
-
-
+        this.drawPolygon(cx, cy, radiusCircle, colorArrow, arrowAngle, svg);
     };
 
-    my.drawPartOfCircle = function(cx,cy,radius,startAngle, endAngle){ // рисуем часть кольца
+    my.drawPartOfCircle = function(cx,cy,radius,startAngle, endAngle){
+        // Рисуем часть кольца
+        // Находим начальные координаты
         var svg, startPointOnCircle, endPointOnCircle, newpath;
         svg = document.getElementById('gauge2');
         startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
         endPointOnCircle = this.getPointOnCircle(cx, cy, radius, endAngle);
 
-        console.log('startPointOnCircle:' + startPointOnCircle);
-        console.log('endPointOnCircle:' + endPointOnCircle);
+        this.drawArc(startPointOnCircle, endPointOnCircle, radius, svg);
+    };
 
+    my.drawPolygon = function(cx, cy, radiusCircle, colorArrow, angle, domElement){
+        // Рисуем полигон
+        // Параметры:
+        // cx - начало координат кольца, ось OX
+        // cy - начало координат кольца, ось OY
+        // radiusCircle - радиус кольца у стрелки
+        // radius - длина стрелки
+        // colorArrow - цвет стрелки
+        // angle - угол поворота, относительно OY
+        // domElement - элемент дерева
+
+
+        // Переводим параметрический угол в начало измерительных зачений gauge
+        angle = (angle  + 180 - my.aperture/2);
+
+        var newpath;
+        newpath = document.createElementNS('http://www.w3.org/2000/svg',"polygon");
+        newpath.setAttributeNS(null, "points",
+            '400,500 '+
+            (cx+radiusCircle/2)+','+(cy)+' '+
+            (cx-radiusCircle/2)+','+(cy)
+        );
+        newpath.setAttributeNS(null, "fill", colorArrow);
+        newpath.setAttributeNS(null, 'transform', "translate(0) rotate(" + angle + " 400 300)");
+        domElement.appendChild(newpath);
+
+    };
+
+    my.drawArc = function(startPointOnCircle, endPointOnCircle, radius, domElement){
+        // Рисует дугу из начальных точек в конечные, с определенно-параметрическим радиусом кривизны
+        // startPointOnCircle - начальные точки {x,y} {float, float}
+        // endPointOnCircle - начальные точки {x,y} {float, float}
+        // radius - радиус кривизны дуги {float}
+        // domElement - элемент дерева
+        var newpath;
         newpath = document.createElementNS('http://www.w3.org/2000/svg',"path");
         newpath.setAttributeNS(null, "d", "M" + startPointOnCircle.x + "," + startPointOnCircle.y + " A" + radius + "," + radius + " 0 0,1 " + endPointOnCircle.x + "," + endPointOnCircle.y);
         newpath.setAttributeNS(null, "stroke", "black");
         newpath.setAttributeNS(null, "stroke-width", 3);
         newpath.setAttributeNS(null, "opacity", 1);
         newpath.setAttributeNS(null, "fill", "none");
-        console.log(svg);
-        svg.appendChild(newpath);
+        domElement.appendChild(newpath);
     };
 
     my.drawDivision = function(cx, cy, radius, startAngle, data){ // Рисуем зачения
-
 
         var svg, startPointOnCircle, endPointOnCircle, newpath, startAngular;
         svg = document.getElementById('gauge2');
@@ -166,34 +161,43 @@ var MODULE = (function () {
         startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
         startAngular = startAngle - this.aperture/this.drawElements/2-90;
 
-        newpath = document.createElementNS('http://www.w3.org/2000/svg',"text");
-        newpath.setAttributeNS(null, "x", startPointOnCircle.x);
-        newpath.setAttributeNS(null, "y", startPointOnCircle.y);
-        newpath.setAttributeNS(null, "font-family", "arial");
-        newpath.setAttributeNS(null, "font-size", 16);
-        newpath.setAttributeNS(null, "text-anchor", "middle");
-        newpath.setAttributeNS(null, 'transform', "translate(0, 0) rotate(" + startAngular + ' '+ startPointOnCircle.x +' '+ startPointOnCircle.y +")");
-        svg.appendChild(newpath).innerHTML = data;
+        this.drawText(startPointOnCircle.x, startPointOnCircle.y, "arial", 16, "middle", "translate(0, 0) rotate(" + startAngular + ' '+ startPointOnCircle.x +' '+ startPointOnCircle.y +")", data, svg);
     };
 
     my.drawDivisionCircle = function(cx, cy, radius, startAngle, radiusCircle, colorCircle){
-        var svg, startPointOnCircle, endPointOnCircle, newpath, startAngular;
+        var svg, startPointOnCircle, endPointOnCircle, startAngular;
         svg = document.getElementById('gauge2');
         startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
         startAngular = startAngle - this.aperture/this.drawElements/2-90;
         console.log(startPointOnCircle.x);
-
-        newpath = document.createElementNS('http://www.w3.org/2000/svg',"circle");
-        newpath.setAttributeNS(null, "cx", startPointOnCircle.x);
-        newpath.setAttributeNS(null, "cy", startPointOnCircle.y);
-        newpath.setAttributeNS(null, "r", radiusCircle);
-        newpath.setAttributeNS(null, "fill", colorCircle);
-        svg.appendChild(newpath);
+        this.drawCircle(startPointOnCircle.x,startPointOnCircle.y,radiusCircle,colorCircle, svg);
     };
 
-    my.drawCircle = function(cx, cy, r, fill){
+    my.drawCircle = function(cx, cy, r, fill, domElement ){
+        var newpath;
 
-    }
+        newpath = document.createElementNS('http://www.w3.org/2000/svg',"circle");
+        newpath.setAttributeNS(null, "cx", cx);
+        newpath.setAttributeNS(null, "cy", cy);
+        newpath.setAttributeNS(null, "r", r);
+        newpath.setAttributeNS(null, "fill", fill);
+
+        domElement.appendChild(newpath);
+    };
+
+    my.drawText = function(cx, cy, ff, fz, ta, transform, text, domElement){
+        var newpath;
+
+        newpath = document.createElementNS('http://www.w3.org/2000/svg',"text");
+        newpath.setAttributeNS(null, "x", cx);
+        newpath.setAttributeNS(null, "y", cy);
+        newpath.setAttributeNS(null, "font-family", ff);
+        newpath.setAttributeNS(null, "font-size", fz);
+        newpath.setAttributeNS(null, "text-anchor", ta);
+        newpath.setAttributeNS(null, 'transform', transform);
+
+        domElement.appendChild(newpath).innerHTML = text;
+    };
 
 
 
