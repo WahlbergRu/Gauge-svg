@@ -56,26 +56,36 @@ var MODULE = (function () {
         }
     };
 
-    my.getPointOnCircle = function(radius, angle) {
+    my.getPointOnCircle = function(cx, cy, radius, angle) {
         // Находим точку на кольце
         // Параметры:
         // radius - радиус кольца
         // angle - угол, начиная от пересечения кольца с осью OX
-        var x =  100 + radius * Math.cos(Math.PI * angle / 180)
-        var y =  100 + radius * Math.sin(Math.PI * angle / 180)
-        console.log('x:' + x);
-        console.log('y:' + y);
         return {
-            x: 100 + radius * Math.cos(Math.PI * angle / 180),
-            y: 100 + radius * Math.sin(Math.PI * angle / 180)
+            x: cx + radius * Math.cos(Math.PI * angle / 180),
+            y: cy + radius * Math.sin(Math.PI * angle / 180)
         };
     };
 
-    my.drawPartOfCircle = function(){ // рисуем часть кольца
-        var svg, startPointOnCircle, endPointOnCircle;
-        svg = document.getElementById('gauge-2');
-        startPointOnCircle = this.getPointOnCircle(50, 90);
-        endPointOnCircle = this.getPointOnCircle(50, 0);
+    my.drawPartOfCircle = function(cx,cy,radius,startAngle, endAngle){ // рисуем часть кольца
+        var svg, startPointOnCircle, endPointOnCircle, newpath;
+        svg = document.getElementById('gauge2');
+        var radius = 50;
+        startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
+        endPointOnCircle = this.getPointOnCircle(cx, cy, radius, endAngle);
+
+        console.log('startPointOnCircle:' + startPointOnCircle);
+        console.log('endPointOnCircle:' + endPointOnCircle);
+
+        newpath = document.createElementNS('http://www.w3.org/2000/svg',"path");
+        newpath.setAttributeNS(null, "d", "M" + startPointOnCircle.x + "," + startPointOnCircle.y + " A" + radius + "," + radius + " 0 0,1 " + endPointOnCircle.x + "," + endPointOnCircle.y);
+        newpath.setAttributeNS(null, "stroke", "black");
+        newpath.setAttributeNS(null, "stroke-width", 3);
+        newpath.setAttributeNS(null, "opacity", 1);
+        newpath.setAttributeNS(null, "fill", "none");
+        console.log(svg);
+        svg.appendChild(newpath);
+
     };
 
     return my;
@@ -114,6 +124,12 @@ MODULE.textOnCircular({
     ]}
 );
 
-MODULE.drawPartOfCircle();
+MODULE.drawPartOfCircle(100, 100, 50, 0, 30);
+MODULE.drawPartOfCircle(100, 100, 50, 30, 60);
+MODULE.drawPartOfCircle(100, 100, 50, 60, 90);
+MODULE.drawPartOfCircle(100, 100, 50, 90, 120);
+MODULE.drawPartOfCircle(100, 100, 50, 120, 150);
+MODULE.drawPartOfCircle(100, 100, 50, 150, 180);
+MODULE.drawPartOfCircle(100, 100, 50, 180, 210);
 
 console.log(MODULE);
