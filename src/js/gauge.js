@@ -2,116 +2,131 @@ var GAUGE = (function () {
 
     return {
         domElem: document.getElementById('gauge'),
-        aperture: 210,
-        radiusGauge: 200,
-        divisionsPerSection: 20,
-        divisionSettings: {
-            width: 2,
-            height: 10,
-            fill: '#000',
-            radius: 1,
+        settings: {
 
-            fontFamily:'Arial',
-            fontSize:'16',
-            position:'outside',
+            aperture: 240,
+            radiusGauge: 200,
 
-            value: [
-                20,
-                40,
-                '60',
-                'asd80',
-                '100',
-                120
-            ],
-            valueColor: [
-                '#333',
-                '#555',
-                '#777',
-                '#999',
-                '#aaa',
-                '#ccc',
-            ]
-        },
-        arrowSettings: {
-            angle: 30,
-            radiusCircle: 10,
-            colorCircle: '#000',
-            colorArrow: '#ccc'
-        },
+            division: {
+                divisionsPerSection: 10,
+                color: '#bbb',
+                radius: 1,
+            },
+
+            divisionBreakpoint: {
+                width: 2,
+                height: 8,
+                color: '#333',
+                valueColor: [
+                    '#666666',
+                    '#666666',
+                    '#666666',
+                    '#666666',
+                    '#666666',
+                    '#666666',
+                    '#666666',
+                    '#ffa500',
+                    '#ffa500',
+                    '#ff0000',
+                ],
+                value: [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6
+                ]
+            },
+
+            divisionText: {
+                fontFamily:'arial',
+                fontSize:'14',
+                position:'outside',
+                color: '#000',
+                rotateText: false
+            },
+
+            arrow: {
+                angle: 0,
+                radiusCircle: 10,
+                colorCircle: '#1e98e4',
+                colorArrow: '#1e98e4'
+            },
+        }, 
         getPointOnCircle: function(cx, cy, radius, angle) {
-            // Находим точку на кольце
-            // Параметры:
-            // radius - радиус кольца
-            // angle - угол, начиная от пересечения кольца с осью OX
-            // 270 - смещение начала отрисовки кольца в отрицательной плоскости OY
+            // РќР°С…РѕРґРёРј С‚РѕС‡РєСѓ РЅР° РєРѕР»СЊС†Рµ
+            // РџР°СЂР°РјРµС‚СЂС‹:
+            // radius - СЂР°РґРёСѓСЃ РєРѕР»СЊС†Р°
+            // angle - СѓРіРѕР», РЅР°С‡РёРЅР°СЏ РѕС‚ РїРµСЂРµСЃРµС‡РµРЅРёСЏ РєРѕР»СЊС†Р° СЃ РѕСЃСЊСЋ OX
+            // 270 - СЃРјРµС‰РµРЅРёРµ РЅР°С‡Р°Р»Р° РѕС‚СЂРёСЃРѕРІРєРё РєРѕР»СЊС†Р° РІ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕР№ РїР»РѕСЃРєРѕСЃС‚Рё OY
             return {
-                x: cx + radius * Math.cos(Math.PI * (angle + 270 - this.aperture/2) / 180),
-                y: cy + radius * Math.sin(Math.PI * (angle + 270 - this.aperture/2) / 180)
+                x: cx + radius * Math.cos(Math.PI * (angle + 270 - this.settings.aperture/2) / 180),
+                y: cy + radius * Math.sin(Math.PI * (angle + 270 - this.settings.aperture/2) / 180)
             };
         },
-        drawParts: function(){
-            // Отрисовка gauge частями
-            // Параметры:
-            // cx - начало координат кольца, ось OX
-            // cy - начало координат кольца, ось OY
-            // radius - радиус gauge
+        gaugeInit: function(){
+            // РћС‚СЂРёСЃРѕРІРєР° gauge С‡Р°СЃС‚СЏРјРё
+            // РџР°СЂР°РјРµС‚СЂС‹:
+            // cx - РЅР°С‡Р°Р»Рѕ РєРѕРѕСЂРґРёРЅР°С‚ РєРѕР»СЊС†Р°, РѕСЃСЊ OX
+            // cy - РЅР°С‡Р°Р»Рѕ РєРѕРѕСЂРґРёРЅР°С‚ РєРѕР»СЊС†Р°, РѕСЃСЊ OY
+            // radius - СЂР°РґРёСѓСЃ gauge
 
-            // Находим угол между думая точками
-            var angularPart = this.aperture/(this.divisionSettings.value.length-1);
+            // РќР°С…РѕРґРёРј СѓРіРѕР» РјРµР¶РґСѓ РґСѓРјР°СЏ С‚РѕС‡РєР°РјРё
+            var angularPart = this.settings.aperture/(this.settings.divisionBreakpoint.value.length-1);
+            var angularColorPart = this.settings.aperture/(this.settings.divisionBreakpoint.valueColor.length);
 
-            for (var i=0; i<=this.divisionSettings.value.length-1; i++){
-                if (i !== this.divisionSettings.value.length-1){
-                    this.drawPartOfCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge, i*angularPart, (i+1)*angularPart, this.divisionSettings.valueColor[i]);
-                    if (this.divisionSettings.position === 'outside'){
-                        for (var j=1; j<this.divisionsPerSection; j++){
-                            this.drawDivisionCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge+15, i*angularPart+j*angularPart/this.divisionsPerSection, this.divisionSettings.radius, this.divisionSettings.fill);
-                        }
-                    } else {
-                        for (var j=1; j<this.divisionsPerSection; j++){
-                            this.drawDivisionCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge-15, i*angularPart+j*angularPart/this.divisionsPerSection, this.divisionSettings.radius, this.divisionSettings.fill);
-                        }
-                    }
-                }
-
-                if (this.divisionSettings.position === 'outside'){
-                    for (var j=1; j<this.divisionsPerSection; j++){
-                        this.drawDivision(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge+20, i*angularPart, this.divisionSettings.height, this.divisionSettings.width, this.divisionSettings.fill, this.divisionSettings.value[i]);
-                        this.drawDivisionLabel(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge+30, i*angularPart, this.divisionSettings.value[i]);
-                    }
-                } else {
-                    for (var j=1; j<this.divisionsPerSection; j++){
-                        this.drawDivision(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge-15, i*angularPart, this.divisionSettings.height, this.divisionSettings.width, this.divisionSettings.fill, this.divisionSettings.value[i]);
-                        this.drawDivisionLabel(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge-50, i*angularPart, this.divisionSettings.value[i]);
-                    }
-                }
-
+            for (var i=0; i<this.settings.divisionBreakpoint.valueColor.length; i++) {
+                this.drawPartOfCircle(this.domElem.offsetWidth / 2, this.domElem.offsetHeight / 2, this.settings.radiusGauge, i * angularColorPart, (i + 1) * angularColorPart, this.settings.divisionBreakpoint.valueColor[i]);
             }
 
-            //Рисуем стрелку у gauge
+            for (var i=0; i<=this.settings.divisionBreakpoint.value.length-1; i++){
+                if (i !== this.settings.divisionBreakpoint.value.length-1){
+                    //this.drawPartOfCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge, i*angularPart, (i+1)*angularPart, this.settings.divisionBreakpoint.valueColor[i]);
+                    if (this.settings.divisionText.position === 'outside'){
+                        for (var j=1; j<this.settings.division.divisionsPerSection; j++){
+                            this.drawDivisionCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge+15, i*angularPart+j*angularPart/this.settings.division.divisionsPerSection, this.settings.division.radius, this.settings.division.color);
+                        }
+                    } else {
+                        for (var j=1; j<this.settings.division.divisionsPerSection; j++){
+                            this.drawDivisionCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge-15, i*angularPart+j*angularPart/this.settings.division.divisionsPerSection, this.settings.division.radius, this.settings.division.color);
+                        }
+                    }
+                }
+                if (this.settings.divisionText.position === 'outside'){
+                    this.drawDivision(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge+20, i*angularPart, this.settings.divisionBreakpoint.height, this.settings.divisionBreakpoint.width, this.settings.divisionBreakpoint.color, this.settings.divisionBreakpoint.value[i]);
+                    this.drawDivisionLabel(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge+30, i*angularPart, this.settings.divisionBreakpoint.value[i]);
+                } else {
+                    this.drawDivision(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge-15, i*angularPart, this.settings.divisionBreakpoint.height, this.settings.divisionBreakpoint.width, this.settings.divisionBreakpoint.color, this.settings.divisionBreakpoint.value[i]);
+                    this.drawDivisionLabel(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge-50, i*angularPart, this.settings.divisionBreakpoint.value[i]);
+                }
+            }
 
-            this.drawArrow(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.radiusGauge-40, this.arrowSettings.angle, this.arrowSettings.radiusCircle, this.arrowSettings.colorCircle,this.arrowSettings.colorArrow);
+            //Р РёСЃСѓРµРј СЃС‚СЂРµР»РєСѓ Сѓ gauge
+
+            this.drawArrow(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge, this.settings.arrow.angle, this.settings.arrow.colorArrow , this.settings.arrow.radiusCircle, this.settings.arrow.colorCircle);
 
         },
-        drawArrow: function(cx, cy, radius, arrowAngle, radiusCircle, colorCircle, colorArrow){
-            // Отрисовка стрелки
-            // Параметры:
-            // cx - начало координат кольца, ось OX
-            // cy - начало координат кольца, ось OY
-            // radius - длина стрелки, ось OY
+        drawArrow: function(cx, cy, radius, arrowAngle, colorArrow, radiusCircle, colorCircle){
+            // РћС‚СЂРёСЃРѕРІРєР° СЃС‚СЂРµР»РєРё
+            // РџР°СЂР°РјРµС‚СЂС‹:
+            // cx - РЅР°С‡Р°Р»Рѕ РєРѕРѕСЂРґРёРЅР°С‚ РєРѕР»СЊС†Р°, РѕСЃСЊ OX
+            // cy - РЅР°С‡Р°Р»Рѕ РєРѕРѕСЂРґРёРЅР°С‚ РєРѕР»СЊС†Р°, РѕСЃСЊ OY
+            // radius - РґР»РёРЅР° СЃС‚СЂРµР»РєРё, РѕСЃСЊ OY
             var startPointOnCircle;
 
 
-            // Рисуем стрелку
+            // Р РёСЃСѓРµРј СЃС‚СЂРµР»РєСѓ
             startPointOnCircle = this.getPointOnCircle(cx, cy, radius, arrowAngle);
-            this.drawPolygon(cx, cy, radiusCircle, colorArrow, arrowAngle, this.domElem);
+            this.drawPolygon(cx, cy, radiusCircle, radius, colorArrow, arrowAngle, this.domElem);
 
-            //Рисуем кружок над стрелкой
+            //Р РёСЃСѓРµРј РєСЂСѓР¶РѕРє РЅР°Рґ СЃС‚СЂРµР»РєРѕР№
             startPointOnCircle = this.getPointOnCircle(cx, cy, radiusCircle, arrowAngle);
             this.drawCircle(cx,cy,radiusCircle,colorCircle,this.domElem)
         },
         drawPartOfCircle: function(cx,cy,radius,startAngle, endAngle, color){
-            // Рисуем часть кольца
-            // Находим начальные координаты
+            // Р РёСЃСѓРµРј С‡Р°СЃС‚СЊ РєРѕР»СЊС†Р°
+            // РќР°С…РѕРґРёРј РЅР°С‡Р°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹
             var startPointOnCircle, endPointOnCircle;
 
             startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
@@ -119,48 +134,46 @@ var GAUGE = (function () {
 
             this.drawArc(startPointOnCircle, endPointOnCircle, radius, color, this.domElem);
         },
-        drawPolygon: function(cx, cy, radiusCircle, colorArrow, angle, domElement){
-            // Рисуем полигон
-            // Параметры:
-            // cx - начало координат кольца, ось OX
-            // cy - начало координат кольца, ось OY
-            // radiusCircle - радиус кольца у стрелки
-            // radius - длина стрелки
-            // colorArrow - цвет стрелки
-            // angle - угол поворота, относительно OY
-            // domElement - элемент дерева
+        drawPolygon: function(cx, cy, radiusCircle, radius, colorArrow, angle, domElement){
+            // Р РёСЃСѓРµРј РїРѕР»РёРіРѕРЅ
+            // РџР°СЂР°РјРµС‚СЂС‹:
+            // cx - РЅР°С‡Р°Р»Рѕ РєРѕРѕСЂРґРёРЅР°С‚ РєРѕР»СЊС†Р°, РѕСЃСЊ OX
+            // cy - РЅР°С‡Р°Р»Рѕ РєРѕРѕСЂРґРёРЅР°С‚ РєРѕР»СЊС†Р°, РѕСЃСЊ OY
+            // radiusCircle - СЂР°РґРёСѓСЃ РєРѕР»СЊС†Р° Сѓ СЃС‚СЂРµР»РєРё
+            // radius - РґР»РёРЅР° СЃС‚СЂРµР»РєРё
+            // colorArrow - С†РІРµС‚ СЃС‚СЂРµР»РєРё
+            // angle - СѓРіРѕР» РїРѕРІРѕСЂРѕС‚Р°, РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ OY
+            // domElement - СЌР»РµРјРµРЅС‚ РґРµСЂРµРІР°
 
-
-            // Переводим параметрический угол в начало измерительных зачений gauge
-            angle = (angle  + 180 - this.aperture/2);
+            // РџРµСЂРµРІРѕРґРёРј РїР°СЂР°РјРµС‚СЂРёС‡РµСЃРєРёР№ СѓРіРѕР» РІ РЅР°С‡Р°Р»Рѕ РёР·РјРµСЂРёС‚РµР»СЊРЅС‹С… Р·Р°С‡РµРЅРёР№ gauge
+            angle = angle  + 180 - this.settings.aperture/2;
 
             var newpath;
-            console.log(cx);
-            console.log(cy);
             newpath = document.createElementNS('http://www.w3.org/2000/svg',"polygon");
             newpath.setAttributeNS(null, "points",
-                cx+','+ (cy+this.radiusGauge)+ ',' +
+                cx+','+ (cy+radius)+ ',' +
                 (cx+radiusCircle/2)+','+(cy)+' '+
                 (cx-radiusCircle/2)+','+(cy)
             );
             newpath.setAttributeNS(null, "fill", colorArrow);
+            newpath.setAttributeNS(null, "data-cx", cx);
+            newpath.setAttributeNS(null, "data-cy", cy);
+            newpath.setAttributeNS(null, "id", this.domElem.id+'-arrow');
             newpath.setAttributeNS(null, 'transform', "translate(0) rotate(" + angle + ' ' + cx + ' ' + cy + ")");
             domElement.appendChild(newpath);
-
         },
         drawArc: function(startPointOnCircle, endPointOnCircle, radius, color, domElement){
-            // Рисует дугу из начальных точек в конечные, с определенно-параметрическим радиусом кривизны
-            // startPointOnCircle - начальные точки {x,y} {float, float}
-            // endPointOnCircle - начальные точки {x,y} {float, float}
-            // radius - радиус кривизны дуги {float}
-            // domElement - элемент дерева
+            // Р РёСЃСѓРµС‚ РґСѓРіСѓ РёР· РЅР°С‡Р°Р»СЊРЅС‹С… С‚РѕС‡РµРє РІ РєРѕРЅРµС‡РЅС‹Рµ, СЃ РѕРїСЂРµРґРµР»РµРЅРЅРѕ-РїР°СЂР°РјРµС‚СЂРёС‡РµСЃРєРёРј СЂР°РґРёСѓСЃРѕРј РєСЂРёРІРёР·РЅС‹
+            // startPointOnCircle - РЅР°С‡Р°Р»СЊРЅС‹Рµ С‚РѕС‡РєРё {x,y} {float, float}
+            // endPointOnCircle - РЅР°С‡Р°Р»СЊРЅС‹Рµ С‚РѕС‡РєРё {x,y} {float, float}
+            // radius - СЂР°РґРёСѓСЃ РєСЂРёРІРёР·РЅС‹ РґСѓРіРё {float}
+            // domElement - СЌР»РµРјРµРЅС‚ РґРµСЂРµРІР°
             var newpath;
             newpath = document.createElementNS('http://www.w3.org/2000/svg',"path");
             newpath.setAttributeNS(null, "d", "M" + startPointOnCircle.x + "," + startPointOnCircle.y + " A" + radius + "," + radius + " 0 0,1 " + endPointOnCircle.x + "," + endPointOnCircle.y);
             newpath.setAttributeNS(null, "stroke-width", 3);
             newpath.setAttributeNS(null, "opacity", 1);
             newpath.setAttributeNS(null, "fill", "none");
-            console.log(color);
             if (color === (null || undefined)){
                 newpath.setAttributeNS(null, "class", "arc arc-default");
             } else {
@@ -170,12 +183,12 @@ var GAUGE = (function () {
             domElement.appendChild(newpath);
         },
         drawDivision: function(cx, cy, radius, startAngle, width, height, fill, data){
-            // Рисуем зачения
+            // Р РёСЃСѓРµРј Р·Р°С‡РµРЅРёСЏ
 
             var startPointOnCircle, newpath, startAngular;
 
             startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
-            startAngular = startAngle - this.aperture/this.divisionSettings.value.length/2;
+            startAngular = startAngle  + 90 - this.settings.aperture/2;
 
             newpath = document.createElementNS('http://www.w3.org/2000/svg',"rect");
             newpath.setAttributeNS(null, 'x', startPointOnCircle.x);
@@ -190,15 +203,15 @@ var GAUGE = (function () {
             var startPointOnCircle, endPointOnCircle, newpath, startAngular;
 
             startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
-            startAngular = startAngle - this.aperture/this.divisionSettings.value.length/2-90;
+            startAngular = startAngle - this.settings.aperture/this.settings.divisionBreakpoint.value.length/2-90;
 
-            this.drawText(startPointOnCircle.x, startPointOnCircle.y, this.divisionSettings.fontFamily, this.divisionSettings.fontSize, "middle", "translate(0, 0) rotate(" + startAngular + ' '+ startPointOnCircle.x +' '+ startPointOnCircle.y +")", data, this.domElem);
+            this.drawText(startPointOnCircle.x, startPointOnCircle.y, this.settings.divisionText.fontFamily, this.settings.divisionText.fontSize, "middle", this.settings.divisionText.color, "translate(0, 0) rotate(" + startAngular + ' '+ startPointOnCircle.x +' '+ startPointOnCircle.y +")", data, this.domElem);
         },
         drawDivisionCircle: function(cx, cy, radius, startAngle, radiusCircle, colorCircle){
             var startPointOnCircle, endPointOnCircle, startAngular;
 
             startPointOnCircle = this.getPointOnCircle(cx, cy, radius, startAngle);
-            startAngular = startAngle - this.aperture/this.divisionSettings.value.length/2-90;
+            startAngular = startAngle - this.settings.aperture/this.settings.divisionBreakpoint.value.length/2-90;
             this.drawCircle(startPointOnCircle.x,startPointOnCircle.y,radiusCircle,colorCircle, this.domElem);
         },
         drawCircle: function(cx, cy, r, fill, domElement ){
@@ -212,7 +225,7 @@ var GAUGE = (function () {
 
             domElement.appendChild(newpath);
         },
-        drawText: function(cx, cy, ff, fz, ta, transform, text, domElement){
+        drawText: function(cx, cy, ff, fz, ta, tc, transform, text, domElement){
             var newpath;
 
             newpath = document.createElementNS('http://www.w3.org/2000/svg',"text");
@@ -221,14 +234,21 @@ var GAUGE = (function () {
             newpath.setAttributeNS(null, "font-family", ff);
             newpath.setAttributeNS(null, "font-size", fz);
             newpath.setAttributeNS(null, "text-anchor", ta);
-            newpath.setAttributeNS(null, 'transform', transform);
+            newpath.setAttributeNS(null, "fill", tc);
+            if (this.settings.divisionText.rotateText === true){
+                newpath.setAttributeNS(null, 'transform', transform);
+            }
 
             domElement.appendChild(newpath).innerHTML = text;
         },
-    }}());
+        transformArrow: function(angle){
+            var newAngle, cx,cy;
+            newAngle = angle  + 180 - this.settings.aperture/2;
+            cx = document.getElementById(this.domElem.id+'-arrow').getAttributeNS(null, 'data-cx');
+            cy = document.getElementById(this.domElem.id+'-arrow').getAttributeNS(null, 'data-cy');
+            document.getElementById(this.domElem.id+'-arrow').setAttributeNS(null, 'transform', "translate(0) rotate(" + newAngle + ' ' + cx + ' ' + cy + ")");
+        }
+    }
+}());
 
-
-//TODO settings, crossbrowser
-
-GAUGE.drawParts();
-console.log(GAUGE);
+//TODO crossbrowser
