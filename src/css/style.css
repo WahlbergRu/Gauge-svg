@@ -6,7 +6,8 @@
     display: block;
 }
 
-
-#circular path{
-
+#gauge path.arc.arc-default{
+    stroke: black;
+}
+#gauge path.arc.arc-color{
 }
