@@ -5,11 +5,6 @@
     "src/js/gauge.js",
     "css/style.css"
   ],
-  "moduleType": [
-    "amd",
-    "globals",
-    "node"
-  ],
   "keywords": [
     "gauge",
     "svg"
@@ -22,6 +17,9 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
-  ]
+    "tests",
+    "**/.*"
+  ],
+  "version": "1.0.2",
+  "homepage": "https://github.com/WahlbergRu/Gauge-svg"
 }
