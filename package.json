@@ -1,0 +1,14 @@
+{
+  "name": "gauge-svg",
+  "version": "1.0.1",
+  "description": "Gauge in SVG, with edit data at gauge",
+  "author": "Allen Wahlberg <allin.nikita@yandex.ru>",
+  "keywords": [
+    "gauge",
+    "svg"
+  ],
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-uglify": "~0.5.0"
+  }
+}

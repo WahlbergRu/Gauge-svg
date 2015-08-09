@@ -2,6 +2,8 @@ var GAUGE = (function () {
 
     return {
         domElem: document.getElementById('gauge'),
+        domElemContainer: document.getElementById('gauge-container'),
+        
         settings: {
 
             aperture: 240,
@@ -72,39 +74,43 @@ var GAUGE = (function () {
             // cy - начало координат кольца, ось OY
             // radius - радиус gauge
 
+            console.log(this.domElemContainer.offsetWidth);
+            console.log(this.domElemContainer.offsetWidth);
+            console.log(document.getElementById('gauge-container').offsetWidth);
+
             // Находим угол между думая точками
             var angularPart = this.settings.aperture/(this.settings.divisionBreakpoint.value.length-1);
             var angularColorPart = this.settings.aperture/(this.settings.divisionBreakpoint.valueColor.length);
 
             for (var i=0; i<this.settings.divisionBreakpoint.valueColor.length; i++) {
-                this.drawPartOfCircle(this.domElem.offsetWidth / 2, this.domElem.offsetHeight / 2, this.settings.radiusGauge, i * angularColorPart, (i + 1) * angularColorPart, this.settings.divisionBreakpoint.valueColor[i]);
+                this.drawPartOfCircle(this.domElemContainer.offsetWidth / 2, this.domElemContainer.offsetHeight / 2, this.settings.radiusGauge, i * angularColorPart, (i + 1) * angularColorPart, this.settings.divisionBreakpoint.valueColor[i]);
             }
 
             for (var i=0; i<=this.settings.divisionBreakpoint.value.length-1; i++){
                 if (i !== this.settings.divisionBreakpoint.value.length-1){
-                    //this.drawPartOfCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge, i*angularPart, (i+1)*angularPart, this.settings.divisionBreakpoint.valueColor[i]);
+                    //this.drawPartOfCircle(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge, i*angularPart, (i+1)*angularPart, this.settings.divisionBreakpoint.valueColor[i]);
                     if (this.settings.divisionText.position === 'outside'){
                         for (var j=1; j<this.settings.division.divisionsPerSection; j++){
-                            this.drawDivisionCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge+15, i*angularPart+j*angularPart/this.settings.division.divisionsPerSection, this.settings.division.radius, this.settings.division.color);
+                            this.drawDivisionCircle(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge+15, i*angularPart+j*angularPart/this.settings.division.divisionsPerSection, this.settings.division.radius, this.settings.division.color);
                         }
                     } else {
                         for (var j=1; j<this.settings.division.divisionsPerSection; j++){
-                            this.drawDivisionCircle(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge-15, i*angularPart+j*angularPart/this.settings.division.divisionsPerSection, this.settings.division.radius, this.settings.division.color);
+                            this.drawDivisionCircle(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge-15, i*angularPart+j*angularPart/this.settings.division.divisionsPerSection, this.settings.division.radius, this.settings.division.color);
                         }
                     }
                 }
                 if (this.settings.divisionText.position === 'outside'){
-                    this.drawDivision(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge+20, i*angularPart, this.settings.divisionBreakpoint.height, this.settings.divisionBreakpoint.width, this.settings.divisionBreakpoint.color, this.settings.divisionBreakpoint.value[i]);
-                    this.drawDivisionLabel(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge+30, i*angularPart, this.settings.divisionBreakpoint.value[i]);
+                    this.drawDivision(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge+20, i*angularPart, this.settings.divisionBreakpoint.height, this.settings.divisionBreakpoint.width, this.settings.divisionBreakpoint.color, this.settings.divisionBreakpoint.value[i]);
+                    this.drawDivisionLabel(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge+30, i*angularPart, this.settings.divisionBreakpoint.value[i]);
                 } else {
-                    this.drawDivision(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge-15, i*angularPart, this.settings.divisionBreakpoint.height, this.settings.divisionBreakpoint.width, this.settings.divisionBreakpoint.color, this.settings.divisionBreakpoint.value[i]);
-                    this.drawDivisionLabel(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge-50, i*angularPart, this.settings.divisionBreakpoint.value[i]);
+                    this.drawDivision(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge-15, i*angularPart, this.settings.divisionBreakpoint.height, this.settings.divisionBreakpoint.width, this.settings.divisionBreakpoint.color, this.settings.divisionBreakpoint.value[i]);
+                    this.drawDivisionLabel(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge-50, i*angularPart, this.settings.divisionBreakpoint.value[i]);
                 }
-            }
+            } 
 
             //Рисуем стрелку у gauge
 
-            this.drawArrow(this.domElem.offsetWidth/2,this.domElem.offsetHeight/2,this.settings.radiusGauge, this.settings.arrow.angle, this.settings.arrow.colorArrow , this.settings.arrow.radiusCircle, this.settings.arrow.colorCircle);
+            this.drawArrow(this.domElemContainer.offsetWidth/2,this.domElemContainer.offsetHeight/2,this.settings.radiusGauge, this.settings.arrow.angle, this.settings.arrow.colorArrow , this.settings.arrow.radiusCircle, this.settings.arrow.colorCircle);
 
         },
         drawArrow: function(cx, cy, radius, arrowAngle, colorArrow, radiusCircle, colorCircle){
@@ -239,7 +245,7 @@ var GAUGE = (function () {
                 newpath.setAttributeNS(null, 'transform', transform);
             }
 
-            domElement.appendChild(newpath).innerHTML = text;
+            domElement.appendChild(newpath).textContent = text;
         },
         transformArrow: function(angle){
             var newAngle, cx,cy;
