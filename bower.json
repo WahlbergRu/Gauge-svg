@@ -1,5 +1,5 @@
 {
-  "name": "gauge-svg",
+  "name": "gauge-svg-aw",
   "description": "Gauge in SVG, with edit data at gauge",
   "main": [
     "src/js/gauge.js",
@@ -20,6 +20,6 @@
     "tests",
     "**/.*"
   ],
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "https://github.com/WahlbergRu/Gauge-svg"
 }

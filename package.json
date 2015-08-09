@@ -1,6 +1,6 @@
 {
   "name": "gauge-svg",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Gauge in SVG, with edit data at gauge",
   "author": "Allen Wahlberg <allin.nikita@yandex.ru>",
   "license": "MIT",

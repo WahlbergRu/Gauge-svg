@@ -2,7 +2,7 @@
 
 Gauge, without any module, pure js
 
-check in ie10+, ff23+, chrome 24+
+check in ie10+(i think can use in ie8), ff23+, chrome 24+
 
 # Demo
 
@@ -11,11 +11,6 @@ check in ie10+, ff23+, chrome 24+
 ### Install with NPM
 ```sh
 $ npm install gauge-svg
-```
-
-### Install with Bower
-```sh
-$ bower install gauge-svg
 ```
 
 # How to use
@@ -71,7 +66,14 @@ $ bower install gauge-svg
     </script>
 ```
 
+# Rotate Arrow
 
+```sh
+    <script>
+        GAUGE.gaugeInit();
+        GAUGE.transformArrow(30); // angle in degree
+    </script>
+```
 
 - компонент должен уметь отображать любой список значений для меток. +
 - компонент должен быть представлен самостоятельным классом. +
