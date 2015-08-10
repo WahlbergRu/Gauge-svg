@@ -255,4 +255,4 @@
             document.getElementById(this.domElem.id+'-arrow').setAttributeNS(null, 'transform', "translate(0) rotate(" + newAngle + ' ' + cx + ' ' + cy + ")");
         }
     }
-}());
+}(GAUGE || {}));
