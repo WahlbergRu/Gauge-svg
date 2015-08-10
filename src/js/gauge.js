@@ -73,11 +73,6 @@
             // cx - начало координат кольца, ось OX
             // cy - начало координат кольца, ось OY
             // radius - радиус gauge
-
-            console.log(this.domElemContainer.offsetWidth);
-            console.log(this.domElemContainer.offsetWidth);
-            console.log(document.getElementById('gauge-container').offsetWidth);
-
             // Находим угол между думая точками
             var angularPart = this.settings.aperture/(this.settings.divisionBreakpoint.value.length-1);
             var angularColorPart = this.settings.aperture/(this.settings.divisionBreakpoint.valueColor.length);
