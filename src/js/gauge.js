@@ -1,4 +1,4 @@
-var GAUGE = (function () {
+;var GAUGE = (function () {
 
     return {
         domElem: document.getElementById('gauge'),
@@ -256,5 +256,3 @@ var GAUGE = (function () {
         }
     }
 }());
-
-//TODO crossbrowser
